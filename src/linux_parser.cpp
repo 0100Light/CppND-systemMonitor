@@ -210,7 +210,7 @@ vector<string> LinuxParser::CpuUtilization() {
 
   std::ifstream fs(kProcDirectory + kStatFilename);
   string line;
-  long user, nice, system, idle, iowait, irq, softirq, steal;
+  float user, nice, system, idle, iowait, irq, softirq, steal;
 
   while (std::getline(fs, line)) {
     std::istringstream ls(line);
@@ -221,11 +221,13 @@ vector<string> LinuxParser::CpuUtilization() {
     }
   }
 
-  [[maybe_unused]] long nonIdleSum{user + nice + system + irq + softirq + steal};
-  [[maybe_unused]] long idleSum{idle + iowait};
-  long total = nonIdleSum+idleSum;
+  float nonIdleSum{user + nice + system + irq + softirq + steal};
+  float idleSum{idle + iowait};
+
+  float util = nonIdleSum / (nonIdleSum + idleSum);
+
   vector<string> res;
-  res.push_back(std::to_string(total));
+  res.push_back(std::to_string(util));
 
   return res;
 }
@@ -292,7 +294,7 @@ string LinuxParser::Ram(int pid) {
   // proc/pid/status
   // VmSize
   // VmSize:	  157468 kB
-  string path = "proc/pid/status";
+  string path = "proc/" + std::to_string(pid) + "/status";
   std::ifstream f(path);
   string line;
   while (std::getline(f, line)){
@@ -348,6 +350,17 @@ string LinuxParser::User(int pid) {
 // TODO: Read and return the uptime of a process
 // REMOVE: [[maybe_unused]] once you define the function
 long LinuxParser::UpTime(int pid) {
-  // /proc/pid/stats
-  return 0;
+  // /proc/pid/stat
+  // 14th element
+  string path = "/proc/"+std::to_string(pid)+"/stat";
+  std::ifstream f(path);
+  vector<string> v{};
+  string line, res;
+  while(std::getline(f, line)){
+    std::istringstream s(line);
+    for (int i=0; i<14; i++){
+      s >> res;
+    }
+  }
+  return std::stol(res);
 }
