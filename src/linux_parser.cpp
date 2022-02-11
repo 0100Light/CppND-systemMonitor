@@ -1,3 +1,4 @@
+#include <cmath>
 #include <dirent.h>
 #include <unistd.h>
 #include <string>
@@ -302,8 +303,10 @@ string LinuxParser::Ram(int pid) {
     string title, usedMem;
     s >> title >> usedMem;
     if (title =="VmSize:"){
-      float mb = std::stoi(usedMem) / 1024;
-      return std::to_string(mb).substr(0, 5);
+      float mb = std::stof(usedMem);
+      mb = mb/1024;
+      int res = (int)std::round(mb);
+      return std::to_string(res);
     }
   }
   return string();
@@ -337,8 +340,6 @@ string LinuxParser::User(int uid) {
 
   std::ifstream f(kPasswordPath);
   for (string line; std::getline(f, line);){
-//    line.replace(line.begin(), line.end(), ":", " ");
-    // TODO: fix bug
     vector<string> oneUser{};
     size_t pos = 0;
     string token;
@@ -349,7 +350,7 @@ string LinuxParser::User(int uid) {
     }
 
     if (oneUser[2]==std::to_string(uid)) {
-      return oneUser[0].substr(0,6);
+      return oneUser[0];
     }
   }
 
