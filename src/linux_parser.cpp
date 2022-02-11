@@ -327,7 +327,7 @@ string LinuxParser::Uid(int pid) {
      if (key == "Uid:"){ return uid; }
    }
 
-   return "";
+   return "0";
 
 }
 

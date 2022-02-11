@@ -15,7 +15,6 @@ Process::Process(int pid){
   this->pid_ = pid;
   this->command = LinuxParser::Command(pid);
   this->ram = LinuxParser::Ram(pid);
-  this->user = LinuxParser::User(std::stoi(LinuxParser::Uid(pid)));
   this->uptime = LinuxParser::UpTime(pid);
 }
 
@@ -34,7 +33,16 @@ string Process::Command() { return this->command; }
 string Process::Ram() { return this->ram; }
 
 // TODO: Return the user (name) that generated this process
-string Process::User() { return this->user.substr(0,6); }
+string Process::User() {
+  int uid;
+  try {
+    uid = std::stoi(LinuxParser::Uid(this->pid_));
+  } catch (std::invalid_argument &e){
+    return "unknown";
+  }
+  this->user = LinuxParser::User(uid);
+  return this->user.substr(0,6); // for better display
+}
 
 // TODO: Return the age of this process (in seconds)
 long int Process::UpTime() { return this->uptime; }
