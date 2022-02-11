@@ -23,7 +23,9 @@ Process::Process(int pid){
 int Process::Pid() { return this->pid_; }
 
 // TODO: Return this process's CPU utilization
-float Process::CpuUtilization() { return 0; }
+float Process::CpuUtilization() {
+  return (float) LinuxParser::UpTime(this->pid_)/LinuxParser::UpTime()*100;
+}
 
 // TODO: Return the command that generated this process
 string Process::Command() { return this->command; }
