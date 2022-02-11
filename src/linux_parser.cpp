@@ -294,14 +294,17 @@ string LinuxParser::Ram(int pid) {
   // proc/pid/status
   // VmSize
   // VmSize:	  157468 kB
-  string path = "proc/" + std::to_string(pid) + "/status";
+  string path = "/proc/" + std::to_string(pid) + "/status";
   std::ifstream f(path);
   string line;
   while (std::getline(f, line)){
     std::istringstream s(line);
     string title, usedMem;
     s >> title >> usedMem;
-    if (title =="VmSize:"){ return usedMem; }
+    if (title =="VmSize:"){
+      float mb = std::stoi(usedMem) / 1024;
+      return std::to_string(mb).substr(0, 5);
+    }
   }
   return string();
 }
@@ -327,24 +330,30 @@ string LinuxParser::Uid(int pid) {
 
 // TODO: Read and return the user associated with a process
 // REMOVE: [[maybe_unused]] once you define the function
-string LinuxParser::User(int pid) {
+string LinuxParser::User(int uid) {
   // kPasswordPath
   // name:password:UID:GID:GECOS:directory:shell
   // www-data:x:33:33:www-data:/var/www:/usr/sbin/nologin
 
   std::ifstream f(kPasswordPath);
-  string line;
-  while (std::getline(f, line)){
-    line.replace(line.begin(), line.end(), ":", " ");
-    std::istringstream s(line);
-    string name, pass, uid;
-    s >> name >> pass >> uid;
-    if (uid == std::to_string(pid)){
-      return name;
+  for (string line; std::getline(f, line);){
+//    line.replace(line.begin(), line.end(), ":", " ");
+    // TODO: fix bug
+    vector<string> oneUser{};
+    size_t pos = 0;
+    string token;
+    while ((pos=line.find(":")) != std::string::npos){
+      token = line.substr(0, pos);
+      oneUser.push_back(token);
+      line.erase(0, pos+1);
+    }
+
+    if (oneUser[2]==std::to_string(uid)) {
+      return oneUser[0].substr(0,6);
     }
   }
 
-  return "";
+  return std::to_string(uid);
 }
 
 // TODO: Read and return the uptime of a process
