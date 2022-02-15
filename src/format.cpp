@@ -16,7 +16,7 @@ string Format::ElapsedTime(long seconds) {
   s = seconds % 60;
   input = (input-s)/60; // minutes
   m = input % 60;
-  h = (input-s) / 60; // hours
+  h = (input-m) / 60; // hours
 
   string output;
   output = ZeroPadNumber(h) + ":" + ZeroPadNumber(m) + ":" + ZeroPadNumber(s);

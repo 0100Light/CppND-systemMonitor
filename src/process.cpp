@@ -3,9 +3,12 @@
 #include <sstream>
 #include <string>
 #include <vector>
+#include <iostream>
 
 #include "linux_parser.h"
 #include "process.h"
+
+using namespace std;
 
 using std::string;
 using std::to_string;
@@ -23,11 +26,54 @@ int Process::Pid() { return this->pid_; }
 
 // TODO: Return this process's CPU utilization
 float Process::CpuUtilization() {
-  return (float) LinuxParser::UpTime(this->pid_)/LinuxParser::UpTime()*100;
+  long uptime = LinuxParser::UpTime();
+
+  string path = "/proc/"+std::to_string(this->pid_)+"/stat";
+  std::ifstream f(path);
+
+  std::string line;
+  vector<string> vec;
+  while(std::getline(f, line)){
+    istringstream s(line);
+    string item;
+    while ( s>>item ){
+      vec.push_back(item);
+    }
+  }
+  f.close();
+
+  // total time
+  // #14 utime - CPU time spent in user code, measured in clock ticks
+  // #15 stime - CPU time spent in kernel code, measured in clock ticks
+  // #16 cutime - Waited-for children's CPU time spent in user code (in clock ticks)
+  // #17 cstime - Waited-for children's CPU time spent in kernel code (in clock ticks)
+  // #22 starttime - Time when the process started, measured in clock ticks
+
+  float totalTime = stof(vec[13])+stof(vec[14])+stof(vec[15])+stof(vec[16]);
+  float startTime = stof(vec[21]);
+
+//  cout << to_string(totalTime)+", "+to_string(startTime) << "\n";
+
+//  Hertz = 100;
+//  seconds = uptime - (starttime / Hertz);
+//  cpu_usage = 100 * ((total_time / Hertz) / seconds);
+
+  float sec = (float)uptime -((float)startTime / 100);
+  float cpuUtil = 100*((float)totalTime / 100) / sec;
+
+  return cpuUtil;
 }
 
+
+
 // TODO: Return the command that generated this process
-string Process::Command() { return this->command; }
+string Process::Command() {
+  if (this->command.length()>451){
+    return this->command.substr(0, 45) + "...";
+  } else {
+    return this->command;
+  }
+}
 
 // TODO: Return this process's memory utilization
 string Process::Ram() { return this->ram; }

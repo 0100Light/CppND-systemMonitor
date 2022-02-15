@@ -198,7 +198,8 @@ vector<string> LinuxParser::CpuUtilization() {
   // PrevIdle = previdle + previowait
   // Idle = idle + iowait
   //
-  // PrevNonIdle = prevuser + prevnice + prevsystem + previrq + prevsoftirq + prevsteal NonIdle = user + nice + system + irq + softirq + steal
+  // PrevNonIdle = prevuser + prevnice + prevsystem + previrq + prevsoftirq + prevsteal
+  // NonIdle = user + nice + system + irq + softirq + steal
   //
   // PrevTotal = PrevIdle + PrevNonIdle
   // Total = Idle + NonIdle
@@ -368,7 +369,8 @@ long LinuxParser::UpTime(int pid) {
   string line, res;
   while(std::getline(f, line)){
     std::istringstream s(line);
-    for (int i=0; i<14; i++){
+//    for (int i=0; i<14; i++){
+    for (int i=0; i<22; i++){
       s >> res;
     }
   }
