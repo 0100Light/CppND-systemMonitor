@@ -361,18 +361,37 @@ string LinuxParser::User(int uid) {
 // TODO: Read and return the uptime of a process
 // REMOVE: [[maybe_unused]] once you define the function
 long LinuxParser::UpTime(int pid) {
-  // /proc/pid/stat
-  // 14th element
+  long uptime = LinuxParser::UpTime();
+
   string path = "/proc/"+std::to_string(pid)+"/stat";
   std::ifstream f(path);
-  vector<string> v{};
-  string line, res;
+
+  std::string line;
+  vector<string> vec;
   while(std::getline(f, line)){
     std::istringstream s(line);
-//    for (int i=0; i<14; i++){
-    for (int i=0; i<22; i++){
-      s >> res;
+    string item;
+    while ( s>>item ){
+      vec.push_back(item);
     }
   }
-  return std::stol(res);
+  f.close();
+
+  // total time
+  // #14 utime - CPU time spent in user code, measured in clock ticks
+  // #15 stime - CPU time spent in kernel code, measured in clock ticks
+  // #16 cutime - Waited-for children's CPU time spent in user code (in clock ticks)
+  // #17 cstime - Waited-for children's CPU time spent in kernel code (in clock ticks)
+  // #22 starttime - Time when the process started, measured in clock ticks
+
+  float startTime = stof(vec[21]);
+
+  //  cout << to_string(totalTime)+", "+to_string(startTime) << "\n";
+
+  //  Hertz = 100;
+  //  seconds = uptime - (starttime / Hertz);
+  //  cpu_usage = 100 * ((total_time / Hertz) / seconds);
+
+  float res = (float)uptime -((float)startTime / 100);
+  return (long) res;
 }
