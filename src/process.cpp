@@ -59,7 +59,7 @@ float Process::CpuUtilization() {
 //  cpu_usage = 100 * ((total_time / Hertz) / seconds);
 
   float sec = (float)uptime -((float)startTime / 100);
-  float cpuUtil = 100*((float)totalTime / 100) / sec;
+  float cpuUtil = ((float)totalTime / 100) / sec;
 
   return cpuUtil;
 }
@@ -68,7 +68,7 @@ float Process::CpuUtilization() {
 
 // TODO: Return the command that generated this process
 string Process::Command() {
-  if (this->command.length()>451){
+  if (this->command.length()>45){
     return this->command.substr(0, 45) + "...";
   } else {
     return this->command;
